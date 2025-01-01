@@ -53,9 +53,13 @@ pub const State = struct {
     /// the time uniform.
     last_frame_time: std.time.Instant,
 
+    /// How to scale the animation time
+    timescale: f32,
+
     pub fn init(
         alloc: Allocator,
         srcs: []const [:0]const u8,
+        timescale: f32,
     ) !State {
         if (srcs.len == 0) return error.OneCustomShaderRequired;
 
@@ -134,6 +138,7 @@ pub const State = struct {
         return .{
             .programs = try programs.toOwnedSlice(),
             .uniforms = .{},
+            .timescale = timescale,
             .fbo = fbo,
             .ubo = ubo,
             .vao = vao,
@@ -186,8 +191,8 @@ pub const State = struct {
         const now = std.time.Instant.now() catch self.first_frame_time;
         const since_ns: f32 = @floatFromInt(now.since(self.first_frame_time));
         const delta_ns: f32 = @floatFromInt(now.since(self.last_frame_time));
-        self.uniforms.time = since_ns / std.time.ns_per_s;
-        self.uniforms.time_delta = delta_ns / std.time.ns_per_s;
+        self.uniforms.time = since_ns / (std.time.ns_per_s * self.timescale);
+        self.uniforms.time_delta = delta_ns / (std.time.ns_per_s * self.timescale);
         self.last_frame_time = now;
 
         // Sync our uniform changes

@@ -289,6 +289,7 @@ pub const DerivedConfig = struct {
     min_contrast: f32,
     padding_color: configpkg.WindowPaddingColor,
     custom_shaders: configpkg.RepeatablePath,
+    custom_shader_timescale: f32,
     links: link.Set,
 
     pub fn init(
@@ -358,6 +359,7 @@ pub const DerivedConfig = struct {
                 null,
 
             .custom_shaders = custom_shaders,
+            .custom_shader_timescale = config.@"custom-shader-timescale",
             .links = links,
 
             .arena = arena,
@@ -2607,6 +2609,7 @@ const GLState = struct {
             break :custom custom.State.init(
                 alloc,
                 shaders,
+                config.custom_shader_timescale,
             ) catch |err| err: {
                 log.warn("error initializing custom shaders err={}", .{err});
                 break :err null;

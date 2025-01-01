@@ -1698,6 +1698,13 @@ keybind: Keybinds = .{},
 /// open terminals.
 @"custom-shader-animation": CustomShaderAnimation = .true,
 
+/// Custom timescale for custom shader animations. This value determines how
+/// long 1 "second" of the shader lasts in realtime. This can be used to slow
+/// down (or speed up) a shader without needing to modify it. A value of `2`
+/// will slow down the shader by half (1/2). A value of `0.5` will double the
+/// speed of the shader.
+@"custom-shader-timescale": f32 = 1.0,
+
 /// If anything other than false, fullscreen mode on macOS will not use the
 /// native fullscreen, but make the window fullscreen without animations and
 /// using a new space. It's faster than the native fullscreen mode since it
