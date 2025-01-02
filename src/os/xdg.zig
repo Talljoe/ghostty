@@ -143,6 +143,32 @@ test {
     }
 }
 
+test "cache directory paths" {
+    const testing = std.testing;
+    const alloc = testing.allocator;
+    const mock_home = "/Users/test";
+
+    // Test when XDG_CACHE_HOME is not set
+    {
+        // Test base path
+        {
+            const cache_path = try cache(alloc, .{ .home = mock_home });
+            defer alloc.free(cache_path);
+            try testing.expectEqualStrings("/Users/test/.cache", cache_path);
+        }
+
+        // Test with subdir
+        {
+            const cache_path = try cache(alloc, .{
+                .home = mock_home,
+                .subdir = "ghostty",
+            });
+            defer alloc.free(cache_path);
+            try testing.expectEqualStrings("/Users/test/.cache/ghostty", cache_path);
+        }
+    }
+}
+
 test parseTerminalExec {
     const testing = std.testing;
 

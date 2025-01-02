@@ -308,7 +308,7 @@ extension Ghostty {
                 resizeIncrements: .init(width: 1, height: 1),
                 resizePublisher: container.resizeEvent,
                 left: {
-                let neighborKey: WritableKeyPath<SplitNode.Neighbors, SplitNode?> = container.direction == .horizontal ? \.right : \.bottom
+                let neighborKey: WritableKeyPath<SplitNode.Neighbors, SplitNode?> = container.direction == .horizontal ? \.right : \.down
 
                 TerminalSplitNested(
                     node: closeableTopLeft(),
@@ -318,7 +318,7 @@ extension Ghostty {
                     ])
                 )
             }, right: {
-                let neighborKey: WritableKeyPath<SplitNode.Neighbors, SplitNode?> = container.direction == .horizontal ? \.left : \.top
+                let neighborKey: WritableKeyPath<SplitNode.Neighbors, SplitNode?> = container.direction == .horizontal ? \.left : \.up
 
                 TerminalSplitNested(
                     node: closeableBottomRight(),

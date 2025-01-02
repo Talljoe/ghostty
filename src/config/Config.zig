@@ -177,6 +177,10 @@ const c = @cImport({
 /// depending on your `window-inherit-font-size` setting. If that setting is
 /// true, only the first window will be affected by this change since all
 /// subsequent windows will inherit the font size of the previous window.
+///
+/// On Linux with GTK, font size is scaled according to both display-wide and
+/// text-specific scaling factors, which are often managed by your desktop
+/// environment (e.g. the GNOME display scale and large text settings).
 @"font-size": f32 = switch (builtin.os.tag) {
     // On macOS we default a little bigger since this tends to look better. This
     // is purely subjective but this is easy to modify.
@@ -320,7 +324,7 @@ const c = @cImport({
 
 /// FreeType load flags to enable. The format of this is a list of flags to
 /// enable separated by commas. If you prefix a flag with `no-` then it is
-/// disabled. If you omit a flag, it's default value is used, so you must
+/// disabled. If you omit a flag, its default value is used, so you must
 /// explicitly disable flags you don't want. You can also use `true` or `false`
 /// to turn all flags on or off.
 ///
@@ -2090,6 +2094,20 @@ pub fn default(alloc_gpa: Allocator) Allocator.Error!Config {
             .{ .key = .{ .translated = .v }, .mods = mods },
             .{ .paste_from_clipboard = {} },
         );
+        // On non-MacOS desktop envs (Windows, KDE, Gnome, Xfce), ctrl+insert is an
+        // alt keybinding for Copy and shift+ins is an alt keybinding for Paste
+        if (!builtin.target.isDarwin()) {
+            try result.keybind.set.put(
+                alloc,
+                .{ .key = .{ .translated = .insert }, .mods = .{ .ctrl = true } },
+                .{ .copy_to_clipboard = {} },
+            );
+            try result.keybind.set.put(
+                alloc,
+                .{ .key = .{ .translated = .insert }, .mods = .{ .shift = true } },
+                .{ .paste_from_clipboard = {} },
+            );
+        }
     }
 
     // Increase font size mapping for keyboards with dedicated plus keys (like german)
@@ -2254,12 +2272,12 @@ pub fn default(alloc_gpa: Allocator) Allocator.Error!Config {
         try result.keybind.set.put(
             alloc,
             .{ .key = .{ .translated = .up }, .mods = .{ .ctrl = true, .alt = true } },
-            .{ .goto_split = .top },
+            .{ .goto_split = .up },
         );
         try result.keybind.set.put(
             alloc,
             .{ .key = .{ .translated = .down }, .mods = .{ .ctrl = true, .alt = true } },
-            .{ .goto_split = .bottom },
+            .{ .goto_split = .down },
         );
         try result.keybind.set.put(
             alloc,
@@ -2523,12 +2541,12 @@ pub fn default(alloc_gpa: Allocator) Allocator.Error!Config {
         try result.keybind.set.put(
             alloc,
             .{ .key = .{ .translated = .up }, .mods = .{ .super = true, .alt = true } },
-            .{ .goto_split = .top },
+            .{ .goto_split = .up },
         );
         try result.keybind.set.put(
             alloc,
             .{ .key = .{ .translated = .down }, .mods = .{ .super = true, .alt = true } },
-            .{ .goto_split = .bottom },
+            .{ .goto_split = .down },
         );
         try result.keybind.set.put(
             alloc,
@@ -2702,6 +2720,9 @@ pub fn loadOptionalFile(
 
 fn writeConfigTemplate(path: []const u8) !void {
     log.info("creating template config file: path={s}", .{path});
+    if (std.fs.path.dirname(path)) |dir_path| {
+        try std.fs.makeDirAbsolute(dir_path);
+    }
     const file = try std.fs.createFileAbsolute(path, .{});
     defer file.close();
     try std.fmt.format(

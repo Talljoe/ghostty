@@ -66,7 +66,7 @@ extension Ghostty {
 
     /// An enum that is used for the directions that a split focus event can change.
     enum SplitFocusDirection {
-        case previous, next, top, bottom, left, right
+        case previous, next, up, down, left, right
 
         /// Initialize from a Ghostty API enum.
         static func from(direction: ghostty_action_goto_split_e) -> Self? {
@@ -77,11 +77,11 @@ extension Ghostty {
             case GHOSTTY_GOTO_SPLIT_NEXT:
                 return .next
 
-            case GHOSTTY_GOTO_SPLIT_TOP:
-                return .top
+            case GHOSTTY_GOTO_SPLIT_UP:
+                return .up
 
-            case GHOSTTY_GOTO_SPLIT_BOTTOM:
-                return .bottom
+            case GHOSTTY_GOTO_SPLIT_DOWN:
+                return .down
 
             case GHOSTTY_GOTO_SPLIT_LEFT:
                 return .left
@@ -102,11 +102,11 @@ extension Ghostty {
             case .next:
                 return GHOSTTY_GOTO_SPLIT_NEXT
 
-            case .top:
-                return GHOSTTY_GOTO_SPLIT_TOP
+            case .up:
+                return GHOSTTY_GOTO_SPLIT_UP
 
-            case .bottom:
-                return GHOSTTY_GOTO_SPLIT_BOTTOM
+            case .down:
+                return GHOSTTY_GOTO_SPLIT_DOWN
 
             case .left:
                 return GHOSTTY_GOTO_SPLIT_LEFT

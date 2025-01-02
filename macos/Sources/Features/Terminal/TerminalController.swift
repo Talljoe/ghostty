@@ -101,6 +101,12 @@ class TerminalController: BaseTerminalController {
         // When our fullscreen state changes, we resync our appearance because some
         // properties change when fullscreen or not.
         guard let focusedSurface else { return }
+        if (!(fullscreenStyle?.isFullscreen ?? false) &&
+           ghostty.config.macosTitlebarStyle == "hidden")
+        {
+            applyHiddenTitlebarStyle()
+        }
+
         syncAppearance(focusedSurface.derivedConfig)
     }
 
@@ -274,6 +280,43 @@ class TerminalController: BaseTerminalController {
         shouldCascadeWindows = false
     }
 
+    fileprivate func applyHiddenTitlebarStyle() {
+        guard let window else { return }
+
+        window.styleMask = [
+            // We need `titled` in the mask to get the normal window frame
+            .titled,
+            
+            // Full size content view so we can extend
+            // content in to the hidden titlebar's area
+                .fullSizeContentView,
+            
+                .resizable,
+            .closable,
+            .miniaturizable,
+        ]
+        
+        // Hide the title
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
+        
+        // Hide the traffic lights (window control buttons)
+        window.standardWindowButton(.closeButton)?.isHidden = true
+        window.standardWindowButton(.miniaturizeButton)?.isHidden = true
+        window.standardWindowButton(.zoomButton)?.isHidden = true
+        
+        // Disallow tabbing if the titlebar is hidden, since that will (should) also hide the tab bar.
+        window.tabbingMode = .disallowed
+        
+        // Nuke it from orbit -- hide the titlebar container entirely, just in case. There are
+        // some operations that appear to bring back the titlebar visibility so this ensures
+        // it is gone forever.
+        if let themeFrame = window.contentView?.superview,
+           let titleBarContainer = themeFrame.firstDescendant(withClassName: "NSTitlebarContainerView") {
+            titleBarContainer.isHidden = true
+        }
+    }
+    
     override func windowDidLoad() {
         super.windowDidLoad()
         guard let window = window as? TerminalWindow else { return }
@@ -365,38 +408,7 @@ class TerminalController: BaseTerminalController {
 
         // If our titlebar style is "hidden" we adjust the style appropriately
         if (config.macosTitlebarStyle == "hidden") {
-            window.styleMask = [
-                // We need `titled` in the mask to get the normal window frame
-                .titled,
-
-                // Full size content view so we can extend
-                // content in to the hidden titlebar's area
-                .fullSizeContentView,
-
-                .resizable,
-                .closable,
-                .miniaturizable,
-            ]
-
-            // Hide the title
-            window.titleVisibility = .hidden
-            window.titlebarAppearsTransparent = true
-
-            // Hide the traffic lights (window control buttons)
-            window.standardWindowButton(.closeButton)?.isHidden = true
-            window.standardWindowButton(.miniaturizeButton)?.isHidden = true
-            window.standardWindowButton(.zoomButton)?.isHidden = true
-
-            // Disallow tabbing if the titlebar is hidden, since that will (should) also hide the tab bar.
-            window.tabbingMode = .disallowed
-
-            // Nuke it from orbit -- hide the titlebar container entirely, just in case. There are
-            // some operations that appear to bring back the titlebar visibility so this ensures
-            // it is gone forever.
-            if let themeFrame = window.contentView?.superview,
-               let titleBarContainer = themeFrame.firstDescendant(withClassName: "NSTitlebarContainerView") {
-                titleBarContainer.isHidden = true
-            }
+            applyHiddenTitlebarStyle()
         }
 
         // In various situations, macOS automatically tabs new windows. Ghostty handles

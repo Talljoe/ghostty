@@ -51,7 +51,7 @@ extension Ghostty {
         /// Returns the view that would prefer receiving focus in this tree. This is always the
         /// top-left-most view. This is used when creating a split or closing a split to find the
         /// next view to send focus to.
-        func preferredFocus(_ direction: SplitFocusDirection = .top) -> SurfaceView {
+        func preferredFocus(_ direction: SplitFocusDirection = .up) -> SurfaceView {
             let container: Container
             switch (self) {
             case .leaf(let leaf):
@@ -64,10 +64,10 @@ extension Ghostty {
 
             let node: SplitNode
             switch (direction) {
-            case .previous, .top, .left:
+            case .previous, .up, .left:
                 node = container.bottomRight
 
-            case .next, .bottom, .right:
+            case .next, .down, .right:
                 node = container.topLeft
             }
 
@@ -431,12 +431,12 @@ extension Ghostty {
         struct Neighbors {
             var left: SplitNode?
             var right: SplitNode?
-            var top: SplitNode?
-            var bottom: SplitNode?
+            var up: SplitNode?
+            var down: SplitNode?
 
             /// These are the previous/next nodes. It will certainly be one of the above as well
             /// but we keep track of these separately because depending on the split direction
-            /// of the containing node, previous may be left OR top (same for next).
+            /// of the containing node, previous may be left OR up (same for next).
             var previous: SplitNode?
             var next: SplitNode?
 
@@ -448,8 +448,8 @@ extension Ghostty {
                 let map: [SplitFocusDirection : KeyPath<Self, SplitNode?>] = [
                     .previous: \.previous,
                     .next: \.next,
-                    .top: \.top,
-                    .bottom: \.bottom,
+                    .up: \.up,
+                    .down: \.down,
                     .left: \.left,
                     .right: \.right,
                 ]

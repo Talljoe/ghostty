@@ -540,11 +540,11 @@ class BaseTerminalController: NSWindowController,
     }
 
     @IBAction func splitMoveFocusAbove(_ sender: Any) {
-        splitMoveFocus(direction: .top)
+        splitMoveFocus(direction: .up)
     }
 
     @IBAction func splitMoveFocusBelow(_ sender: Any) {
-        splitMoveFocus(direction: .bottom)
+        splitMoveFocus(direction: .down)
     }
 
     @IBAction func splitMoveFocusLeft(_ sender: Any) {

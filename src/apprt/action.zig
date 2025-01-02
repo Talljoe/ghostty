@@ -332,9 +332,9 @@ pub const GotoSplit = enum(c_int) {
     previous,
     next,
 
-    top,
+    up,
     left,
-    bottom,
+    down,
     right,
 };
 
